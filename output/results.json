@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-07-31T15:42:11.763Z",
+  "source": "https://www.baseball-reference.com/players/",
+  "complete": false,
+  "totalPlayers": 874,
+  "playersWithFaqData": 101,
+  "questions": [
+    {
+      "question": "how many hits did <player> have?",
+      "playerCount": 45
+    },
+    {
+      "question": "how many hits does <player> have?",
+      "playerCount": 8
+    },
+    {
+      "question": "how many home runs did <player> have?",
+      "playerCount": 45
+    },
+    {
+      "question": "how many home runs does <player> have?",
+      "playerCount": 8
+    },
+    {
+      "question": "how many seasons did <player> play?",
+      "playerCount": 83
+    },
+    {
+      "question": "how many seasons has <player> played?",
+      "playerCount": 18
+    },
+    {
+      "question": "how many strikeouts did <player> have?",
+      "playerCount": 38
+    },
+    {
+      "question": "how many strikeouts does <player> have?",
+      "playerCount": 10
+    },
+    {
+      "question": "how many teams has <player> played for?",
+      "playerCount": 101
+    },
+    {
+      "question": "how many world series has <player> won?",
+      "playerCount": 17
+    },
+    {
+      "question": "how much did <player> weigh when playing?",
+      "playerCount": 81
+    },
+    {
+      "question": "how much does <player> weigh?",
+      "playerCount": 18
+    },
+    {
+      "question": "how much is <player> worth?",
+      "playerCount": 4
+    },
+    {
+      "question": "how old is <player>?",
+      "playerCount": 68
+    },
+    {
+      "question": "how tall is <player>?",
+      "playerCount": 70
+    },
+    {
+      "question": "how tall was <player>?",
+      "playerCount": 29
+    },
+    {
+      "question": "is <player> in the hall of fame?",
+      "playerCount": 83
+    },
+    {
+      "question": "what are <player>'s nicknames?",
+      "playerCount": 29
+    },
+    {
+      "question": "what is <player>'s average?",
+      "playerCount": 8
+    },
+    {
+      "question": "what is <player>'s instagram account?",
+      "playerCount": 16
+    },
+    {
+      "question": "what position did <player> play?",
+      "playerCount": 83
+    },
+    {
+      "question": "what position does <player> play?",
+      "playerCount": 18
+    },
+    {
+      "question": "what was <player>'s average?",
+      "playerCount": 45
+    },
+    {
+      "question": "when did <player> retire?",
+      "playerCount": 83
+    },
+    {
+      "question": "when was <player> born?",
+      "playerCount": 100
+    },
+    {
+      "question": "when was <player> drafted?",
+      "playerCount": 35
+    },
+    {
+      "question": "where was <player> born?",
+      "playerCount": 101
+    }
+  ]
+}
