@@ -18,7 +18,7 @@ describe("aggregateQuestions", () => {
       },
     ];
 
-    const output = aggregateQuestions(results, SOURCE, GENERATED_AT);
+    const output = aggregateQuestions(results, results.length, SOURCE, GENERATED_AT);
     expect(output.questions).toEqual([{ question: "when was <player> born?", playerCount: 2 }]);
   });
 
@@ -30,7 +30,7 @@ describe("aggregateQuestions", () => {
       },
     ];
 
-    const output = aggregateQuestions(results, SOURCE, GENERATED_AT);
+    const output = aggregateQuestions(results, results.length, SOURCE, GENERATED_AT);
     expect(output.questions).toEqual([{ question: "how tall is <player>?", playerCount: 1 }]);
   });
 
@@ -39,7 +39,7 @@ describe("aggregateQuestions", () => {
       { player: { name: "Henry Aaron", url: "u2", playerId: "aaronha01" }, questions: [] },
     ];
 
-    const output = aggregateQuestions(results, SOURCE, GENERATED_AT);
+    const output = aggregateQuestions(results, results.length, SOURCE, GENERATED_AT);
     expect(output.totalPlayers).toBe(1);
     expect(output.questions).toEqual([]);
   });
@@ -52,10 +52,31 @@ describe("aggregateQuestions", () => {
       },
     ];
 
-    const output = aggregateQuestions(results, SOURCE, GENERATED_AT);
+    const output = aggregateQuestions(results, results.length, SOURCE, GENERATED_AT);
     expect(output.questions.map((q) => q.question)).toEqual([
       "how tall is <player>?",
       "where was <player> born?",
     ]);
+  });
+
+  it("marks the result complete when every matching player has FAQ data", () => {
+    const results: PlayerFaqResult[] = [
+      { player: { name: "Henry Aaron", url: "u2", playerId: "aaronha01" }, questions: [] },
+    ];
+
+    const output = aggregateQuestions(results, results.length, SOURCE, GENERATED_AT);
+    expect(output.complete).toBe(true);
+    expect(output.playersWithFaqData).toBe(1);
+  });
+
+  it("marks the result incomplete and keeps the true total when players are missing", () => {
+    const results: PlayerFaqResult[] = [
+      { player: { name: "Henry Aaron", url: "u2", playerId: "aaronha01" }, questions: [] },
+    ];
+
+    const output = aggregateQuestions(results, 5, SOURCE, GENERATED_AT);
+    expect(output.complete).toBe(false);
+    expect(output.totalPlayers).toBe(5);
+    expect(output.playersWithFaqData).toBe(1);
   });
 });

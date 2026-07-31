@@ -3,6 +3,7 @@ import type { AggregatorOutput, PlayerFaqResult, QuestionAggregate } from "./typ
 
 export function aggregateQuestions(
   results: PlayerFaqResult[],
+  totalMatchingPlayers: number,
   source: string,
   generatedAt: string = new Date().toISOString(),
 ): AggregatorOutput {
@@ -24,7 +25,9 @@ export function aggregateQuestions(
   return {
     generatedAt,
     source,
-    totalPlayers: results.length,
+    complete: results.length === totalMatchingPlayers,
+    totalPlayers: totalMatchingPlayers,
+    playersWithFaqData: results.length,
     questions,
   };
 }

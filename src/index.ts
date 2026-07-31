@@ -17,6 +17,7 @@ import { aggregateQuestions } from "./aggregator.js";
 import type { PlayerFaqResult, PlayerReference } from "./types.js";
 
 const refresh = process.argv.includes("--refresh");
+const allowPartial = process.argv.includes("--allow-partial");
 
 async function loadAllPlayers(): Promise<PlayerReference[]> {
   const all: PlayerReference[] = [];
@@ -85,18 +86,29 @@ async function main(): Promise<void> {
         console.error(`  - ${player.name} (${player.url}): ${String(error)}`);
       }
     }
-    console.error("\nRefusing to write output because the data set is incomplete.");
-    process.exitCode = 1;
-    process.exit(1);
+
+    if (!allowPartial) {
+      console.error("\nRefusing to write output because the data set is incomplete.");
+      console.error("Pass --allow-partial to write a clearly-marked partial result instead.");
+      process.exitCode = 1;
+      process.exit(1);
+    }
+
+    console.error(
+      `\n--allow-partial set: writing ${OUTPUT_PATH} with FAQ data for ${results.length} of ` +
+        `${matchingPlayers.length} matching players. "complete" will be false in the output.`,
+    );
   }
 
-  const output = aggregateQuestions(results, `${BASE_URL}/players/`);
+  const output = aggregateQuestions(results, matchingPlayers.length, `${BASE_URL}/players/`);
 
   await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
   await writeFile(OUTPUT_PATH, `${JSON.stringify(output, null, 2)}\n`, "utf8");
 
   console.log(`\nWrote ${OUTPUT_PATH}`);
+  console.log(`Complete: ${output.complete}`);
   console.log(`Total matching players: ${output.totalPlayers}`);
+  console.log(`Players with FAQ data included: ${output.playersWithFaqData}`);
   console.log(`Unique normalized questions: ${output.questions.length}`);
   process.exit(0);
 }

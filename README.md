@@ -21,18 +21,27 @@ npm install
 ## Commands
 
 ```bash
-npm run start      # use cached HTML where available, fetch only what's missing
-npm run refresh     # ignore the cache and re-download every page
-npm test             # run the test suite (fixtures only, no network access)
-npm run typecheck  # tsc --noEmit
-npm run build        # compile to dist/
+npm run start                       # use cached HTML where available, fetch only what's missing
+npm run refresh                      # ignore the cache and re-download every page
+npm run start -- --allow-partial   # write output even if some player pages failed (see below)
+npm test                              # run the test suite (fixtures only, no network access)
+npm run typecheck                   # tsc --noEmit
+npm run build                         # compile to dist/
 ```
 
-`npm run start` writes `output/results.json`. A run only writes output if
-**every** matching player's page was fetched successfully — if any page
-fails after retries, the script prints the failures and exits non-zero
+`npm run start` writes `output/results.json`. By default, a run only writes
+output if **every** matching player's page was fetched successfully — if any
+page fails after retries, the script prints the failures and exits non-zero
 without touching `output/results.json`, so a partial crawl can never
-silently produce an incomplete result.
+silently produce a result that looks complete but isn't.
+
+Passing `--allow-partial` writes the output anyway, using whichever matching
+players' pages were fetched successfully. The file is never silently
+partial: `totalPlayers` is still the true count of all name-matching players
+(known exactly from directory parsing alone, independent of how many player
+pages succeeded), while `complete` and `playersWithFaqData` make explicit
+that the `questions` aggregation only covers a subset. See
+[Output schema](#output-schema).
 
 ## How it works
 
@@ -112,7 +121,9 @@ client cannot solve. The fetcher accounts for this:
 {
   "generatedAt": "2026-07-30T12:00:00.000Z",
   "source": "https://www.baseball-reference.com/players/",
+  "complete": true,
   "totalPlayers": 874,
+  "playersWithFaqData": 874,
   "questions": [
     { "question": "how tall was <player>?", "playerCount": 812 },
     { "question": "when was <player> born?", "playerCount": 874 }
@@ -120,9 +131,15 @@ client cannot solve. The fetcher accounts for this:
 }
 ```
 
-- `totalPlayers` — count of players whose name has exactly three `a`s.
+- `totalPlayers` — count of players whose name has exactly three `a`s. This
+  is always exact, since it only requires parsing the 26 directory pages.
+- `complete` — `true` only if every one of those players' pages was
+  successfully fetched. `false` means the run used `--allow-partial`.
+- `playersWithFaqData` — how many players' FAQ questions actually went into
+  `questions` below. Equal to `totalPlayers` when `complete` is `true`.
 - `questions` — every distinct normalized question, sorted alphabetically,
-  with the number of matching players whose FAQ included it.
+  with the number of matching players (out of `playersWithFaqData`, not
+  necessarily `totalPlayers`) whose FAQ included it.
 
 ## Assumptions
 
@@ -141,9 +158,14 @@ client cannot solve. The fetcher accounts for this:
 ## Known limitations
 
 - The crawl needs ~900 HTTP requests (26 directories + one page per
-  matching player). If the source site's bot mitigation triggers mid-run,
-  the run fails intentionally rather than writing partial data — re-running
-  resumes from cache and only needs to fetch what's missing.
+  matching player). The committed `output/results.json` in this repo has
+  `complete: false` — during development this IP got flagged by Baseball
+  Reference's Cloudflare bot mitigation (a JS challenge a plain HTTP client
+  cannot solve) after earlier debugging runs sent far more traffic than the
+  task needed. `totalPlayers` (874) is exact; `playersWithFaqData` covers
+  the 101 players whose pages were fetched before the block. Re-running
+  `npm run start` from a clean, low-volume network resumes from cache and
+  only needs to fetch the remaining players.
 - FAQ questions are matched by heading position (`#div_faq h3`), not by
   exact question text, so a template change on the site would need the
   selector in `src/playerParser.ts` revisited.

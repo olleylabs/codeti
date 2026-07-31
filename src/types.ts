@@ -17,6 +17,8 @@ export interface QuestionAggregate {
 export interface AggregatorOutput {
   generatedAt: string;
   source: string;
+  complete: boolean;
   totalPlayers: number;
+  playersWithFaqData: number;
   questions: QuestionAggregate[];
 }
