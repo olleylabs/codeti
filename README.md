@@ -21,12 +21,13 @@ npm install
 ## Commands
 
 ```bash
-npm run start                       # use cached HTML where available, fetch only what's missing
-npm run refresh                      # ignore the cache and re-download every page
-npm run start -- --allow-partial   # write output even if some player pages failed (see below)
-npm test                              # run the test suite (fixtures only, no network access)
-npm run typecheck                   # tsc --noEmit
-npm run build                         # compile to dist/
+npm run start                                     # use cached HTML where available, fetch only what's missing
+npm run refresh                                    # ignore the cache and re-download every page
+npm run start -- --allow-partial                # write output even if some player pages failed (see below)
+npm run start -- --cache-only --allow-partial   # never touch the network; use only what's already cached
+npm test                                            # run the test suite (fixtures only, no network access)
+npm run typecheck                                 # tsc --noEmit
+npm run build                                       # compile to dist/
 ```
 
 `npm run start` writes `output/results.json`. By default, a run only writes
@@ -42,6 +43,13 @@ partial: `totalPlayers` is still the true count of all name-matching players
 pages succeeded), while `complete` and `playersWithFaqData` make explicit
 that the `questions` aggregation only covers a subset. See
 [Output schema](#output-schema).
+
+`--cache-only` goes a step further: a missing page is treated as a plain
+cache miss with no network request attempted at all, not fetched and not
+retried. Combined with `--allow-partial`, it regenerates
+`output/results.json` purely from `data/raw/` — useful when the network is
+unavailable or, as in this repo's committed run, when the source site is
+actively blocking further requests and re-probing it would be counterproductive.
 
 ## How it works
 

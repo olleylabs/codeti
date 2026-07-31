@@ -18,19 +18,20 @@ import type { PlayerFaqResult, PlayerReference } from "./types.js";
 
 const refresh = process.argv.includes("--refresh");
 const allowPartial = process.argv.includes("--allow-partial");
+const cacheOnly = process.argv.includes("--cache-only");
 
 async function loadAllPlayers(): Promise<PlayerReference[]> {
   const all: PlayerReference[] = [];
   for (const letter of LETTERS) {
     const url = `${BASE_URL}/players/${letter}/`;
-    const html = await fetchHtmlCached(url, DIRECTORY_CACHE_DIR, letter, refresh);
+    const html = await fetchHtmlCached(url, DIRECTORY_CACHE_DIR, letter, refresh, cacheOnly);
     all.push(...parseDirectoryPage(html));
   }
   return dedupeByPlayerId(all);
 }
 
 async function fetchPlayerFaq(player: PlayerReference): Promise<PlayerFaqResult> {
-  const html = await fetchHtmlCached(player.url, PLAYER_CACHE_DIR, player.playerId, refresh);
+  const html = await fetchHtmlCached(player.url, PLAYER_CACHE_DIR, player.playerId, refresh, cacheOnly);
   return { player, questions: parseFaqQuestions(html) };
 }
 
@@ -74,7 +75,12 @@ async function main(): Promise<void> {
   });
 
   if (failures.length > 0) {
-    if (isBlocked()) {
+    if (cacheOnly) {
+      console.error(
+        `\n--cache-only set: ${results.length} player page(s) were already cached, ` +
+          `${failures.length} were not and were skipped without any network request.`,
+      );
+    } else if (isBlocked()) {
       console.error(
         `\nThe site's bot mitigation blocked this run after ${results.length} successful player page(s); ` +
           `${failures.length} page(s) were skipped as a result. Re-run later (or from a different network) — ` +

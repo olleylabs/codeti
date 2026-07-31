@@ -14,6 +14,7 @@ function delay(ms: number): Promise<void> {
 
 class RateLimitedError extends Error {}
 export class BlockedError extends Error {}
+export class CacheMissError extends Error {}
 
 // Shared across all concurrent fetches so a 429 backs off every in-flight
 // and future request, not just the one that received it.
@@ -102,10 +103,14 @@ export async function fetchHtmlCached(
   cacheDir: string,
   cacheKey: string,
   refresh: boolean,
+  cacheOnly = false,
 ): Promise<string> {
   if (!refresh) {
     const cached = await readCache(cacheDir, cacheKey);
     if (cached !== null) return cached;
+  }
+  if (cacheOnly) {
+    throw new CacheMissError(`No cached copy for ${url} (cache-only mode: network disabled)`);
   }
   const html = await fetchWithRetry(url);
   await writeCache(cacheDir, cacheKey, html);
